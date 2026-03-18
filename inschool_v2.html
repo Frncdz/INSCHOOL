@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>InSchool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+/* =============================================
+   DESIGN TOKENS — Notion-inspired whites & blues
+   ============================================= */
+:root {
+  --white:     #ffffff;
+  --bone:      #f7f6f3;
+  --bone2:     #efede9;
+  --gray-100:  #f1f1ef;
+  --gray-200:  #e3e2de;
+  --gray-300:  #cbcac6;
+  --gray-400:  #9b9a97;
+  --gray-500:  #6f6e69;
+  --gray-700:  #37352f;
+  --gray-900:  #191919;
+  --blue-50:   #f0f4ff;
+  --blue-100:  #dbe4ff;
+  --blue-400:  #4c84ff;
+  --blue-500:  #2563eb;
+  --blue-600:  #1d4ed8;
+  --blue-700:  #1e3a8a;
+  --red-50:    #fff1f0;
+  --red-400:   #f87171;
+  --red-500:   #ef4444;
+  --green-50:  #f0fdf4;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --amber-50:  #fffbeb;
+  --amber-400: #fbbf24;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 50px rgba(0,0,0,0.12);
+
+  --radius-sm: 6px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --sidebar-w: 240px;
+  --topbar-h:  52px;
+
+  --font: 'Geist', -apple-system, sans-serif;
+  --mono: 'Geist Mono', monospace;
+
+  --transition: 150ms ease;
+}
+
+/* =============================================
+   RESET & BASE
+   ============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: var(--font);
+  background: var(--bone);
+  color: var(--gray-700);
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--font); cursor: pointer; }
+input, select, textarea { font-family: var(--font); }
+img { max-width: 100%; display: block; }
+
+/* =============================================
+   SCROLLBARS
+   ============================================= */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
+
+/* =============================================
+   TYPOGRAPHY
+   ============================================= */
+.text-xs  { font-size: 11px; }
+.text-sm  { font-size: 13px; }
+.text-base{ font-size: 15px; }
+.text-lg  { font-size: 17px; }
+.text-xl  { font-size: 20px; }
+.text-2xl { font-size: 24px; }
+.text-3xl { font-size: 30px; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.text-muted { color: var(--gray-400); }
+.text-subtle { color: var(--gray-500); }
+.mono { font-family: var(--mono); }
+
+/* =============================================
+   LAYOUT SHELLS
+   ============================================= */
+#login-screen {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bone);
+  z-index: 9999;
+}
+#app {
+  display: none;
+  flex-direction: column;
+  height: 100dvh;
+}
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* =============================================
+   LOGIN
+   ============================================= */
+.login-wrap {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: fadeUp .4s ease;
+}
+.login-brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.login-brand-logo {
+  width: 52px; height: 52px;
+  background: var(--blue-500);
+  border-radius: var(--radius-lg);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(37,99,235,.3);
+  font-family: var(--mono);
+}
+.login-brand-name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--gray-900);
+}
+.login-brand-sub {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-top: 2px;
+  font-family: var(--mono);
+}
+.login-school-banner {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  text-align: center;
+  margin-bottom: 20px;
+  display: none;
+}
+.login-school-name { font-size: 15px; font-weight: 600; color: var(--gray-700); }
+.login-school-sub  { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+.login-tabs {
+  display: flex;
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  padding: 3px;
+  margin-bottom: 20px;
+}
+.login-tab {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: calc(var(--radius) - 2px);
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-400);
+  transition: all var(--transition);
+}
+.login-tab.active {
+  background: var(--white);
+  color: var(--gray-700);
+  box-shadow: var(--shadow-xs);
+}
+
+.login-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+}
+.login-card-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--gray-900);
+}
+.login-card-sub {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-bottom: 20px;
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.field-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-500);
+  letter-spacing: .3px;
+}
+.field-input {
+  height: 38px;
+  padding: 0 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--gray-900);
+  background: var(--white);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  width: 100%;
+}
+.field-input:focus {
+  border-color: var(--blue-400);
+  box-shadow: 0 0 0 3px rgba(76,132,255,.12);
+}
+.field-input.error { border-color: var(--red-400); }
+.field-textarea {
+  padding: 10px 12px;
+  height: auto;
+  resize: vertical;
+}
+.field-select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239b9a97' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; appearance: none; padding-right: 30px; }
+
+.login-err {
+  background: var(--red-50);
+  border: 1px solid #fecaca;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--red-500);
+  margin-bottom: 14px;
+  display: none;
+}
+.btn-login {
+  width: 100%;
+  height: 40px;
+  background: var(--blue-500);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 2px 8px rgba(37,99,235,.25);
+}
+.btn-login:hover  { background: var(--blue-600); box-shadow: 0 4px 14px rgba(37,99,235,.35); }
+.btn-login:active { transform: scale(.99); }
+
+.login-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-300);
+  margin-top: 16px;
+  font-family: var(--mono);
+}
+
+/* =============================================
+   TOPBAR
+   ============================================= */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 200;
+}
+.topbar-menu-btn {
+  width: 32px; height: 32px;
+  border: none; background: transparent;
+  border-radius: var(--radius);
+  display: none; align-items: center; justify-content: center;
+  font-size: 18px;
+  color: var(--gray-500);
+  transition: background var(--transition);
+}
+.topbar-menu-btn:hover { background: var(--gray-100); }
+.topbar-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 600; color: var(--gray-900);
+}
+.topbar-brand-icon {
+  width: 28px; height: 28px;
+  background: var(--blue-500);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: white;
+  font-family: var(--mono);
+}
+.topbar-school { font-size: 13px; color: var(--gray-400); margin-left: 2px; }
+.topbar-spacer { flex: 1; }
+.topbar-clock {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--gray-400);
+  padding: 4px 10px;
+  background: var(--gray-100);
+  border-radius: var(--radius);
+}
+.topbar-user {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px 5px 7px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+  border: 1px solid var(--gray-200);
+}
+.topbar-user:hover { background: var(--gray-100); }
+.topbar-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--blue-100);
+  color: var(--blue-600);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.topbar-uname { font-size: 13px; font-weight: 500; }
+.topbar-role-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: var(--blue-50);
+  color: var(--blue-600);
+  border-radius: 99px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+.btn-logout {
+  height: 32px; padding: 0 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-size: 12px;
+  color: var(--gray-500);
+  transition: all var(--transition);
+}
+.btn-logout:hover { border-color: var(--red-400); color: var(--red-500); background: var(--red-50); }
+
+/* =============================================
+   SIDEBAR
+   ============================================= */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--white);
+  border-right: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+  transition: transform var(--transition);
+  z-index: 150;
+}
+.sidebar-section-label {
+  padding: 12px 12px 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--gray-300);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin: 1px 6px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-500);
+  transition: all var(--transition);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.nav-item:hover { background: var(--gray-100); color: var(--gray-700); }
+.nav-item.active { background: var(--blue-50); color: var(--blue-600); }
+.nav-item-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-separator { height: 1px; background: var(--gray-200); margin: 6px 12px; }
+.sidebar-bottom { margin-top: auto; padding: 12px; border-top: 1px solid var(--gray-200); }
+.sidebar-school-info { font-size: 12px; color: var(--gray-400); line-height: 1.5; }
+
+/* MOBILE sidebar overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.25);
+  z-index: 140;
+}
+
+/* =============================================
+   MAIN CONTENT
+   ============================================= */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bone);
+  display: flex;
+  flex-direction: column;
+}
+.main-inner {
+  padding: 28px 32px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+/* =============================================
+   VIEWS
+   ============================================= */
+.view { display: none; animation: fadeIn .2s ease; }
+.view.active { display: block; }
+@keyframes fadeIn  { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+@keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 24px; gap: 12px; flex-wrap: wrap;
+}
+.page-title { font-size: 22px; font-weight: 700; color: var(--gray-900); letter-spacing: -.3px; }
+.page-sub   { font-size: 13px; color: var(--gray-400); margin-top: 3px; }
+.page-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* =============================================
+   CARDS
+   ============================================= */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+}
+.card-title {
+  font-size: 12px; font-weight: 600;
+  color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: .6px; margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-xs);
+}
+.stat-label { font-size: 12px; color: var(--gray-400); font-weight: 500; margin-bottom: 6px; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--gray-900); letter-spacing: -1px; }
+.stat-sub   { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+.stat-card.blue  { border-color: var(--blue-100);  background: var(--blue-50); }
+.stat-card.blue  .stat-value { color: var(--blue-600); }
+.stat-card.green { border-color: #bbf7d0; background: var(--green-50); }
+.stat-card.green .stat-value { color: var(--green-500); }
+.stat-card.red   { border-color: #fecaca; background: var(--red-50); }
+.stat-card.red   .stat-value { color: var(--red-500); }
+.stat-card.amber { border-color: #fde68a; background: var(--amber-50); }
+.stat-card.amber .stat-value { color: var(--amber-400); }
+
+/* =============================================
+   GRID
+   ============================================= */
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 14px; height: 34px;
+  border-radius: var(--radius); border: none;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--blue-500); color: white;
+  box-shadow: 0 1px 4px rgba(37,99,235,.2);
+}
+.btn-primary:hover { background: var(--blue-600); }
+.btn-secondary {
+  background: var(--white); color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-xs);
+}
+.btn-secondary:hover { background: var(--gray-100); border-color: var(--gray-300); }
+.btn-ghost { background: transparent; color: var(--gray-500); }
+.btn-ghost:hover { background: var(--gray-100); color: var(--gray-700); }
+.btn-danger { background: var(--red-50); color: var(--red-500); border: 1px solid #fecaca; }
+.btn-danger:hover { background: #fee2e2; }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.btn-lg { height: 40px; padding: 0 18px; font-size: 14px; }
+.btn-icon { width: 34px; padding: 0; justify-content: center; }
+.btn-icon.btn-sm { width: 28px; }
+
+/* =============================================
+   BADGES
+   ============================================= */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 11px; font-weight: 500;
+  font-family: var(--mono);
+}
+.badge-blue   { background: var(--blue-50);  color: var(--blue-600);  border: 1px solid var(--blue-100); }
+.badge-green  { background: var(--green-50); color: var(--green-500); border: 1px solid #bbf7d0; }
+.badge-red    { background: var(--red-50);   color: var(--red-500);   border: 1px solid #fecaca; }
+.badge-amber  { background: var(--amber-50); color: #d97706;          border: 1px solid #fde68a; }
+.badge-gray   { background: var(--gray-100); color: var(--gray-500);  border: 1px solid var(--gray-200); }
+
+/* =============================================
+   TABLE
+   ============================================= */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { border-bottom: 1px solid var(--gray-200); }
+th {
+  text-align: left; padding: 8px 12px;
+  font-size: 11px; font-weight: 600;
+  color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: .5px;
+}
+tbody tr { border-bottom: 1px solid var(--gray-100); transition: background var(--transition); }
+tbody tr:hover { background: var(--bone); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 10px 12px; font-size: 13px; color: var(--gray-500); }
+td:first-child { color: var(--gray-700); font-weight: 500; }
+.empty-state {
+  text-align: center; padding: 40px 20px;
+  color: var(--gray-400); font-size: 13px;
+}
+.empty-state-icon { font-size: 32px; margin-bottom: 8px; opacity: .4; }
+
+/* =============================================
+   MODAL
+   ============================================= */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.3);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  width: 100%; max-width: 480px;
+  max-height: calc(100dvh - 60px);
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  animation: fadeUp .2s ease;
+}
+.modal-header {
+  padding: 20px 24px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title { font-size: 17px; font-weight: 600; color: var(--gray-900); }
+.modal-close {
+  width: 28px; height: 28px; border: none; background: transparent;
+  border-radius: var(--radius); font-size: 18px; color: var(--gray-400);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition);
+}
+.modal-close:hover { background: var(--gray-100); }
+.modal-body { padding: 16px 24px; }
+.modal-footer {
+  padding: 12px 24px 20px;
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+.form-row { display: flex; gap: 12px; }
+.form-row .field { flex: 1; }
+
+/* =============================================
+   TOAST
+   ============================================= */
+#toast-wrap {
+  position: fixed; top: 60px; right: 16px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--gray-900); color: white;
+  border-radius: var(--radius);
+  font-size: 13px; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn .25s ease;
+  pointer-events: all;
+  max-width: 300px;
+}
+.toast.success { background: var(--gray-900); }
+.toast.error   { background: #7f1d1d; }
+.toast.info    { background: var(--blue-700); }
+@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
+
+/* =============================================
+   SCANNER VIEW
+   ============================================= */
+.scanner-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.scanner-cam-wrap {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  width: 360px; max-width: 100%;
+  flex-shrink: 0;
+}
+.scanner-cam-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.scanner-cam-body {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--gray-100);
+  display: flex; align-items: center; justify-content: center;
+}
+.scanner-idle-state { text-align: center; padding: 40px 20px; }
+.scanner-idle-icon  { font-size: 48px; margin-bottom: 12px; opacity: .3; }
+.scanner-idle-text  { font-size: 13px; color: var(--gray-400); }
+#qr-reader { width: 100% !important; }
+#qr-reader video { display: block; }
+#qr-reader__scan_region { border: none !important; }
+#qr-reader__dashboard    { display: none !important; }
+.scan-corner {
+  position: absolute;
+  width: 36px; height: 36px;
+  border-color: var(--blue-500);
+  border-style: solid;
+  opacity: .8;
+}
+.scan-corner.tl { top:20px;left:20px; border-width:3px 0 0 3px; border-radius: 4px 0 0 0; }
+.scan-corner.tr { top:20px;right:20px; border-width:3px 3px 0 0; border-radius: 0 4px 0 0; }
+.scan-corner.bl { bottom:20px;left:20px; border-width:0 0 3px 3px; border-radius: 0 0 0 4px; }
+.scan-corner.br { bottom:20px;right:20px; border-width:0 3px 3px 0; border-radius: 0 0 4px 0; }
+.scan-line {
+  position: absolute; left:20px; right:20px; height:2px;
+  background: linear-gradient(90deg, transparent, var(--blue-500), transparent);
+  animation: scanLine 2s ease-in-out infinite;
+}
+@keyframes scanLine { 0%{top:20px} 100%{top:calc(100% - 20px)} }
+.scanner-cam-footer { padding: 14px 18px; display: flex; gap: 8px; }
+
+.scanner-result-card {
+  flex: 1; min-width: 240px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-xs);
+  transition: border-color .3s, background .3s;
+}
+.scanner-result-card.success { border-color: #86efac; background: var(--green-50); }
+.scanner-result-card.error   { border-color: #fca5a5; background: var(--red-50); }
+.result-icon { font-size: 40px; margin-bottom: 12px; }
+.result-name { font-size: 20px; font-weight: 700; color: var(--gray-900); margin-bottom: 2px; }
+.result-meta { font-size: 12px; color: var(--gray-400); font-family: var(--mono); margin-bottom: 14px; }
+.result-type { font-size: 26px; font-weight: 700; }
+.result-type.entry { color: var(--green-500); }
+.result-type.exit  { color: var(--blue-500); }
+.result-time { font-size: 11px; color: var(--gray-400); margin-top: 4px; font-family: var(--mono); }
+
+.scan-log-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--gray-100);
+  animation: fadeIn .2s ease;
+}
+.scan-log-item:last-child { border-bottom: none; }
+.log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.log-dot.entry { background: var(--green-500); }
+.log-dot.exit  { background: var(--blue-500); }
+
+/* =============================================
+   QR CARD
+   ============================================= */
+.qr-display-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  max-width: 280px;
+  box-shadow: var(--shadow-sm);
+}
+.qr-container { background: white; padding: 12px; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+.qr-code-num  { font-family: var(--mono); font-size: 20px; letter-spacing: 4px; color: var(--blue-500); font-weight: 600; }
+
+/* =============================================
+   TIMELINE
+   ============================================= */
+.timeline { display: flex; flex-direction: column; }
+.tl-item {
+  display: flex; gap: 14px; padding: 10px 0;
+  border-left: 2px solid var(--gray-200);
+  margin-left: 8px; padding-left: 18px;
+  position: relative;
+}
+.tl-item::before {
+  content: '';
+  position: absolute; left: -5px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gray-200); border: 2px solid var(--white);
+}
+.tl-item.entry::before { background: var(--green-500); }
+.tl-item.exit::before  { background: var(--blue-500); }
+.tl-title { font-size: 13px; font-weight: 500; color: var(--gray-700); }
+.tl-sub   { font-size: 11px; color: var(--gray-400); font-family: var(--mono); }
+
+/* =============================================
+   PROGRESS BAR
+   ============================================= */
+.progress { height: 5px; background: var(--gray-200); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; background: var(--blue-500); transition: width .6s ease; }
+.progress-fill.green { background: var(--green-500); }
+
+/* =============================================
+   SETTINGS FORM SECTIONS
+   ============================================= */
+.settings-section {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.settings-section-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.settings-section-body { padding: 20px; }
+
+/* =============================================
+   TOUR OVERLAY
+   ============================================= */
+#tour-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 5000;
+  display: none; align-items: center; justify-content: center;
+}
+#tour-overlay.open { display: flex; }
+.tour-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  max-width: 420px; width: 100%;
+  margin: 16px;
+  box-shadow: var(--shadow-xl);
+  animation: fadeUp .3s ease;
+  text-align: center;
+}
+.tour-step-num {
+  display: inline-block;
+  font-size: 11px; font-family: var(--mono);
+  color: var(--blue-500); background: var(--blue-50);
+  padding: 3px 10px; border-radius: 99px; margin-bottom: 14px;
+}
+.tour-icon { font-size: 40px; margin-bottom: 12px; }
+.tour-title { font-size: 19px; font-weight: 700; margin-bottom: 8px; color: var(--gray-900); }
+.tour-text  { font-size: 14px; color: var(--gray-500); line-height: 1.6; margin-bottom: 24px; }
+.tour-dots  { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
+.tour-dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--gray-200); transition: background .2s; }
+.tour-dot.active { background: var(--blue-500); width: 18px; }
+.tour-actions { display: flex; gap: 8px; justify-content: center; }
+
+/* =============================================
+   PARENT DASHBOARD - student card
+   ============================================= */
+.student-header-card {
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
+  color: white;
+  border-radius: var(--radius-xl);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 18px;
+  box-shadow: 0 4px 20px rgba(37,99,235,.3);
+}
+.student-avatar-big {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 700; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,.4);
+}
+.student-header-name { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+.student-header-sub  { font-size: 13px; opacity: .75; font-family: var(--mono); }
+
+/* =============================================
+   RESPONSIVE — TABLET
+   ============================================= */
+@media (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .main-inner { padding: 20px; }
+}
+
+/* =============================================
+   RESPONSIVE — MOBILE
+   ============================================= */
+@media (max-width: 640px) {
+  :root { --sidebar-w: 72%; }
+  .sidebar {
+    position: fixed; top: var(--topbar-h); left: 0; bottom: 0;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-xl);
+    z-index: 150;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .topbar-menu-btn { display: flex; }
+  .topbar-clock { display: none; }
+  .topbar-school { display: none; }
+  .topbar-uname  { display: none; }
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .main-inner { padding: 14px; }
+  .scanner-layout { flex-direction: column; }
+  .scanner-cam-wrap { width: 100%; }
+  .scanner-result-card { width: 100%; }
+  .form-row { flex-direction: column; }
+  .page-header { flex-direction: column; }
+}
+
+/* =============================================
+   DEVICE BANNER
+   ============================================= */
+.device-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-family: var(--mono);
+  background: var(--gray-100); color: var(--gray-400);
+  padding: 2px 8px; border-radius: 99px;
+}
+
+/* Utility */
+.hidden { display: none !important; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.mt-4  { margin-top: 4px; }
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.divider { height:1px; background:var(--gray-200); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<!-- =============================================
+     TOAST
+     ============================================= -->
+<div id="toast-wrap"></div>
+
+<!-- =============================================
+     TOUR
+     ============================================= -->
+<div id="tour-overlay">
+  <div class="tour-card" id="tour-card">
+    <div class="tour-step-num" id="tour-step-label">Paso 1 de 5</div>
+    <div class="tour-icon" id="tour-icon">👋</div>
+    <div class="tour-title" id="tour-title">Bienvenido a InSchool</div>
+    <div class="tour-text" id="tour-text">Tu sistema de gestión escolar. Vamos a mostrarte lo más importante en unos pasos rápidos.</div>
+    <div class="tour-dots" id="tour-dots"></div>
+    <div class="tour-actions">
+      <button class="btn btn-secondary" onclick="skipTour()">Omitir</button>
+      <button class="btn btn-primary" onclick="nextTour()">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================
+     MODAL
+     ============================================= -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- =============================================
+     SIDEBAR OVERLAY (mobile)
+     ============================================= -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- =============================================
+     LOGIN
+     ============================================= -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-brand-logo" id="login-logo-box">IS</div>
+      <div class="login-brand-name" id="login-brand-name">InSchool</div>
+      <div class="login-brand-sub">Sistema de Gestión Escolar</div>
+    </div>
+
+    <div class="login-school-banner" id="login-school-banner">
+      <div class="login-school-name" id="login-school-name-banner">—</div>
+      <div class="login-school-sub" id="login-school-sub-banner">—</div>
+    </div>
+
+    <div class="login-tabs" id="login-tabs">
+      <button class="login-tab active" onclick="setLoginTab('personal',this)">Personal</button>
+      <button class="login-tab" onclick="setLoginTab('padre',this)">Padres</button>
+      <button class="login-tab" onclick="setLoginTab('scanner',this)">Scanner</button>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-title" id="login-card-title">Acceso — Personal del colegio</div>
+      <div class="login-card-sub" id="login-card-sub">Ingresa con tu DNI o código asignado</div>
+      <div class="field">
+        <div class="field-label">DNI / Código de acceso</div>
+        <input type="tel" class="field-input" id="login-dni" placeholder="Ej: 47251890" maxlength="20" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <div class="field-label">Contraseña</div>
+        <input type="password" class="field-input" id="login-pass" placeholder="••••••••"/>
+      </div>
+      <div class="login-err" id="login-err">DNI o contraseña incorrectos.</div>
+      <button class="btn-login" onclick="doLogin()">Ingresar</button>
+      <div class="login-hint" id="login-hint">Admin inicial: DNI <strong>00000000</strong> / pass <strong>admin123</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================
+     APP
+     ============================================= -->
+<div id="app">
+  <!-- Topbar -->
+  <div class="topbar">
+    <button class="topbar-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-brand">
+      <div class="topbar-brand-icon" id="tb-logo">IS</div>
+      <span id="tb-school-name">InSchool</span>
+      <span class="topbar-school" id="tb-school-sub"></span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <span class="topbar-clock" id="topbar-clock">--:--:--</span>
+    <div class="topbar-user" onclick="showView('profile')">
+      <div class="topbar-avatar" id="tb-avatar">?</div>
+      <span class="topbar-uname" id="tb-uname">—</span>
+      <span class="topbar-role-badge" id="tb-role">—</span>
+    </div>
+    <button class="btn-logout btn btn-sm" onclick="doLogout()">Salir</button>
+  </div>
+
+  <div class="app-body">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div id="sidebar-nav"></div>
+      <div class="sidebar-bottom">
+        <div class="sidebar-school-info" id="sidebar-school-info"></div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main" id="main">
+      <div class="main-inner">
+
+        <!-- ====== VIEW: DASHBOARD ====== -->
+        <div id="view-dashboard" class="view active">
+          <div class="page-header">
+            <div>
+              <div class="page-title" id="dash-greeting">Buen día</div>
+              <div class="page-sub" id="dash-date">—</div>
+            </div>
+            <div class="page-actions">
+              <span class="device-badge" id="device-badge">💻 Desktop</span>
+              <button class="btn btn-secondary btn-sm" onclick="refreshDashboard()">↻ Actualizar</button>
+            </div>
+          </div>
+          <div class="grid-4 mb-20" id="dash-stats"></div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">Actividad reciente</div>
+              <div id="dash-activity"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Avisos recientes</div>
+              <div id="dash-notifs"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: SCANNER ====== -->
+        <div id="view-scanner" class="view">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Scanner de Ingreso</div>
+              <div class="page-sub">Registra entradas y salidas en tiempo real</div>
+            </div>
+            <div class="page-actions">
+              <span class="badge badge-gray" id="scan-mode-badge">MODO: ENTRADA</span>
+              <button class="btn btn-secondary btn-sm" onclick="toggleScanMode()">⇄ Cambiar modo</button>
+            </div>
+          </div>
+          <div class="scanner-layout">
+            <!-- Camera -->
+            <div class="scanner-cam-wrap">
+              <div class="scanner-cam-header">
+                <span class="font-semibold text-sm">Cámara QR</span>
+                <span class="badge badge-gray" id="cam-status-badge">Inactiva</span>
+              </div>
+              <div class="scanner-cam-body">
+                <div class="scanner-idle-state" id="scan-idle">
+                  <div class="scanner-idle-icon">📷</div>
+                  <div class="scanner-idle-text">Presiona "Activar cámara"</div>
+                </div>
+                <div id="qr-reader" style="display:none;width:100%;"></div>
+                <div id="scan-corners" style="display:none;position:absolute;inset:0;pointer-events:none;">
+                  <div class="scan-corner tl"></div><div class="scan-corner tr"></div>
+                  <div class="scan-corner bl"></div><div class="scan-corner br"></div>
+                  <div class="scan-line"></div>
+                </div>
+              </div>
+              <div class="scanner-cam-footer">
+                <button class="btn btn-primary" id="scan-btn" onclick="toggleScanner()">▶ Activar cámara</button>
+                <button class="btn btn-secondary" onclick="manualEntry()">✎ Manual</button>
+              </div>
+            </div>
+
+            <!-- Result + log -->
+            <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:14px;">
+              <div class="scanner-result-card" id="scan-result">
+                <div style="text-align:center;padding:24px 0;color:var(--gray-300);">
+                  <div style="font-size:40px;margin-bottom:8px;">⬜</div>
+                  <div class="text-sm">Esperando escaneo...</div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title" style="margin-bottom:10px;">
+                  Registro del día
+                  <button class="btn btn-ghost btn-sm" style="float:right;" onclick="exportScannerPDF()">↓ PDF</button>
+                </div>
+                <div style="font-size:12px;color:var(--gray-400);margin-bottom:10px;font-family:var(--mono);">
+                  <span id="scan-entries-count">0</span> entradas · <span id="scan-exits-count">0</span> salidas
+                </div>
+                <div id="scan-log-list" style="max-height:260px;overflow-y:auto;">
+                  <div class="empty-state"><div class="empty-state-icon">📋</div>Sin registros aún</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: ATTENDANCE ====== -->
+        <div id="view-attendance" class="view">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Registro de Asistencia</div>
+              <div class="page-sub">Historial de entradas y salidas</div>
+            </div>
+            <div class="page-actions">
+              <input type="date" class="field-input" id="att-date" style="width:160px;height:34px;" oninput="loadAttendance()"/>
+              <input type="text" class="field-input" id="att-search" placeholder="Buscar..." style="width:180px;height:34px;" oninput="loadAttendance()"/>
+              <button class="btn btn-secondary btn-sm" onclick="exportAttPDF()">↓ PDF</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Nombre</th><th>Rol</th><th>Tipo</th><th>Hora</th><th>Fecha</th></tr></thead>
+                <tbody id="att-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: USERS ====== -->
+        <div id="view-users" class="view">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Gestión de Usuarios</div>
+              <div class="page-sub">Administra el personal y los padres de familia</div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="openCreateUser()">+ Nuevo usuario</button>
+            </div>
+          </div>
+          <div class="card mb-16">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="text" class="field-input" id="usr-search" placeholder="Buscar nombre o DNI..." style="flex:1;min-width:160px;height:34px;" oninput="loadUsers()"/>
+              <select class="field-input field-select" id="usr-role-filter" style="width:180px;height:34px;" onchange="loadUsers()">
+                <option value="">Todos los roles</option>
+                <option value="admin_0">Administrador 0</option>
+                <option value="admin">Administrador</option>
+                <option value="profesor">Profesor</option>
+                <option value="administrativo">Administrativo</option>
+                <option value="auxiliar">Auxiliar</option>
+                <option value="apoyo">Personal de apoyo</option>
+                <option value="scanner">Scanner de ingreso</option>
+                <option value="padre">Padre/Madre</option>
+              </select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Usuario</th><th>DNI</th><th>Código</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="usr-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: NOTIFICATIONS ====== -->
+        <div id="view-notifications" class="view">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Comunicados</div>
+              <div class="page-sub">Avisos y notificaciones del colegio</div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="btn-new-notif" onclick="openCreateNotif()" style="display:none;">+ Nuevo aviso</button>
+            </div>
+          </div>
+          <div class="grid-2" style="align-items:start;">
+            <div class="card"><div class="card-title">Todos los avisos</div><div id="notif-list"></div></div>
+            <div class="card" id="notif-detail" style="display:none;">
+              <div class="card-title" style="display:flex;justify-content:space-between;">DETALLE <button class="btn btn-ghost btn-sm" onclick="document.getElementById('notif-detail').style.display='none'">✕</button></div>
+              <div id="notif-detail-body"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: MY QR ====== -->
+        <div id="view-qr" class="view">
+          <div class="page-header">
+            <div><div class="page-title">Mi Código QR</div><div class="page-sub">Usa este código para registrar tu asistencia</div></div>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
+            <div class="qr-display-card">
+              <div class="qr-container" id="my-qr-box"></div>
+              <div class="qr-code-num" id="my-qr-num">—</div>
+              <div class="text-sm text-subtle" id="my-qr-name">—</div>
+              <span class="badge badge-blue" id="my-qr-role">—</span>
+              <button class="btn btn-secondary btn-sm" onclick="downloadMyQR()">↓ Guardar QR</button>
+            </div>
+            <div style="flex:1;min-width:220px;">
+              <div class="card mb-12">
+                <div class="card-title">Instrucciones</div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div class="flex gap-8 items-center"><div style="width:22px;height:22px;border-radius:50%;background:var(--blue-500);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><div class="text-sm text-subtle">Muestra este QR al ingreso del colegio</div></div>
+                  <div class="flex gap-8 items-center"><div style="width:22px;height:22px;border-radius:50%;background:var(--blue-500);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><div class="text-sm text-subtle">El scanner registrará tu entrada automáticamente</div></div>
+                  <div class="flex gap-8 items-center"><div style="width:22px;height:22px;border-radius:50%;background:var(--blue-500);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><div class="text-sm text-subtle">Repite al salir para registrar tu salida</div></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title">Mi asistencia reciente</div>
+                <div id="my-att-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: PARENT DASHBOARD ====== -->
+        <div id="view-parent" class="view">
+          <div id="parent-student-header"></div>
+          <div class="grid-2 mb-16">
+            <div class="stat-card blue">
+              <div class="stat-label">Asistencias este mes</div>
+              <div class="stat-value" id="p-att-count">—</div>
+              <div class="stat-sub">días con registro de entrada</div>
+            </div>
+            <div class="stat-card green">
+              <div class="stat-label">Último ingreso</div>
+              <div class="stat-value text-xl" id="p-last-entry">—</div>
+              <div class="stat-sub" id="p-last-entry-date">—</div>
+            </div>
+          </div>
+          <div class="grid-2" style="align-items:start;">
+            <div class="card">
+              <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                Historial de asistencia
+                <button class="btn btn-secondary btn-sm" onclick="exportParentPDF()">↓ PDF</button>
+              </div>
+              <div id="parent-att-list"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">QR del estudiante</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;">
+                <div class="qr-container" id="student-qr-box"></div>
+                <div class="qr-code-num" id="student-qr-num">—</div>
+                <div class="text-sm text-subtle" id="student-qr-name">—</div>
+                <button class="btn btn-secondary btn-sm" onclick="downloadStudentQR()">↓ Guardar QR</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: SETTINGS ====== -->
+        <div id="view-settings" class="view">
+          <div class="page-header">
+            <div><div class="page-title">Configuración del Colegio</div><div class="page-sub">Personaliza la información de tu institución educativa</div></div>
+            <div class="page-actions"><button class="btn btn-primary" onclick="saveSettings()">Guardar cambios</button></div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-header">🏫 Información del colegio</div>
+            <div class="settings-section-body">
+              <div class="form-row">
+                <div class="field"><div class="field-label">Nombre del colegio</div><input type="text" class="field-input" id="cfg-school-name" placeholder="Colegio Nexus"/></div>
+                <div class="field"><div class="field-label">Nivel educativo</div><select class="field-input field-select" id="cfg-level"><option>Inicial</option><option>Primaria</option><option>Secundaria</option><option>Primaria y Secundaria</option><option>Completo (Inicial–Secundaria)</option></select></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><div class="field-label">Dirección</div><input type="text" class="field-input" id="cfg-address" placeholder="Av. Principal 123"/></div>
+                <div class="field"><div class="field-label">Distrito / Ciudad</div><input type="text" class="field-input" id="cfg-city" placeholder="Huancayo, Junín"/></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><div class="field-label">Teléfono</div><input type="text" class="field-input" id="cfg-phone" placeholder="064-123456"/></div>
+                <div class="field"><div class="field-label">Correo institucional</div><input type="email" class="field-input" id="cfg-email" placeholder="info@colegio.edu.pe"/></div>
+              </div>
+              <div class="field"><div class="field-label">Página web (opcional)</div><input type="text" class="field-input" id="cfg-web" placeholder="www.colegio.edu.pe"/></div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-header">👤 Director / Directivos</div>
+            <div class="settings-section-body">
+              <div class="form-row">
+                <div class="field"><div class="field-label">Director(a)</div><input type="text" class="field-input" id="cfg-director" placeholder="Prof. Juan Pérez"/></div>
+                <div class="field"><div class="field-label">Sub-director(a)</div><input type="text" class="field-input" id="cfg-subdirector" placeholder="Prof. Ana López"/></div>
+              </div>
+              <div class="field"><div class="field-label">Mensaje institucional (aparece en PDFs)</div><textarea class="field-input field-textarea" id="cfg-message" rows="3" placeholder="Formando líderes del mañana..."></textarea></div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-header">🎨 Identidad visual</div>
+            <div class="settings-section-body">
+              <div class="form-row">
+                <div class="field">
+                  <div class="field-label">Iniciales del logo (2 letras)</div>
+                  <input type="text" class="field-input" id="cfg-initials" maxlength="3" placeholder="IS" style="font-family:var(--mono);font-size:18px;text-align:center;"/>
+                </div>
+                <div class="field">
+                  <div class="field-label">Color principal</div>
+                  <input type="color" class="field-input" id="cfg-color" value="#2563eb" style="height:38px;padding:4px 8px;cursor:pointer;"/>
+                </div>
+              </div>
+              <div class="card" style="background:var(--bone);border-style:dashed;text-align:center;padding:16px;">
+                <div style="font-size:12px;color:var(--gray-400);">📷 Las fotos de logo y alumnos se agregan en la <strong>Fase 2</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== VIEW: PROFILE ====== -->
+        <div id="view-profile" class="view">
+          <div class="page-header">
+            <div><div class="page-title">Mi Perfil</div><div class="page-sub">Información de tu cuenta</div></div>
+            <div class="page-actions"><button class="btn btn-primary" onclick="openChangePass()">🔑 Cambiar contraseña</button></div>
+          </div>
+          <div class="grid-2" style="align-items:start;">
+            <div class="card">
+              <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px;">
+                <div style="width:56px;height:56px;border-radius:50%;background:var(--blue-100);color:var(--blue-600);font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;" id="profile-avatar-big">?</div>
+                <div>
+                  <div style="font-size:18px;font-weight:700;color:var(--gray-900);" id="profile-name">—</div>
+                  <span class="badge badge-blue" id="profile-role-badge">—</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div><div class="field-label">DNI / Código de acceso</div><div class="mono mt-4" style="font-size:18px;color:var(--blue-500);font-weight:600;" id="profile-dni">—</div></div>
+                <div><div class="field-label">Código único del sistema</div><div class="mono mt-4" style="font-size:14px;letter-spacing:2px;color:var(--gray-500);" id="profile-code">—</div></div>
+                <div><div class="field-label">Estado</div><span class="badge badge-green mt-4">● Activo</span></div>
+              </div>
+            </div>
+            <div id="profile-extra"></div>
+          </div>
+        </div>
+
+      </div><!-- /main-inner -->
+    </div><!-- /main -->
+  </div><!-- /app-body -->
+
+  <!-- Status bar -->
+  <div style="height:26px;background:var(--white);border-top:1px solid var(--gray-200);display:flex;align-items:center;padding:0 16px;gap:16px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gray-400);font-family:var(--mono);">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--green-500);box-shadow:0 0 5px var(--green-500);" id="status-dot"></div>
+      <span id="status-text">localStorage activo</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="font-size:10px;color:var(--gray-300);font-family:var(--mono);">InSchool OS v2.0 · Fase 1</div>
+  </div>
+</div><!-- /app -->
+
+<script>
+'use strict';
+// =============================================================
+//  INSCHOOL v2 — 100% localStorage
+// =============================================================
+
+// ---------- DEVICE DETECTION ----------
+var DEVICE = (function(){
+  var w = window.innerWidth;
+  if (w < 641)  return 'mobile';
+  if (w < 1024) return 'tablet';
+  return 'desktop';
+})();
+window.addEventListener('resize', function(){
+  DEVICE = window.innerWidth < 641 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop';
+  var badge = document.getElementById('device-badge');
+  if (badge) badge.textContent = DEVICE === 'mobile' ? '📱 Móvil' : DEVICE === 'tablet' ? '📟 Tablet' : '💻 Desktop';
+});
+
+// ---------- DB HELPERS ----------
+function dbGet(k){ try{ return JSON.parse(localStorage.getItem('is2_'+k)||'null'); }catch(e){ return null; } }
+function dbSet(k,v){ localStorage.setItem('is2_'+k, JSON.stringify(v)); }
+function genId(){ return 'id'+Date.now()+Math.random().toString(36).slice(2,6); }
+function genCode(){
+  var users = dbGet('users')||[];
+  var codes = users.map(function(u){ return u.code; });
+  var c;
+  do { c = 'IS-'+Math.random().toString(36).slice(2,9).toUpperCase(); } while(codes.includes(c));
+  return c;
+}
+
+// ---------- SEED DATA ----------
+function initDB(){
+  if (!dbGet('initialized')){
+    var admin = {
+      id:'u_admin0', dni:'00000000', password:'admin123',
+      role:'admin_0', name:'Administrador Principal',
+      code: 'IS-ADMIN0', active:true,
+      created_at: new Date().toISOString()
+    };
+    dbSet('users', [admin]);
+    dbSet('notifications', [
+      { id:'n1', title:'Bienvenido a InSchool', message:'El sistema ha sido configurado. Por favor, completa la configuración del colegio en Ajustes.', target:'all', created_at: new Date().toISOString() }
+    ]);
+    dbSet('attendance', []);
+    dbSet('school', {
+      name:'Mi Institución Educativa', level:'Primaria y Secundaria',
+      address:'', city:'', phone:'', email:'', web:'',
+      director:'', subdirector:'', message:'',
+      initials:'IS', color:'#2563eb'
+    });
+    dbSet('initialized', true);
+  }
+}
+
+// ---------- STATE ----------
+var S = {
+  user: null,
+  loginTab: 'personal',
+  scannerActive: false,
+  scanMode: 'entry',
+  scanner: null,
+  lastScan: 0,
+  entriesCount: 0,
+  exitsCount: 0
+};
+
+// ---------- HELPERS ----------
+var ROLE_LABELS = {
+  admin_0:'Admin 0', admin:'Administrador', profesor:'Profesor',
+  administrativo:'Administrativo', auxiliar:'Auxiliar',
+  apoyo:'Personal de apoyo', scanner:'Scanner', padre:'Padre/Madre'
+};
+function rl(r){ return ROLE_LABELS[r]||r; }
+function initials(name){ return (name||'?').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase(); }
+function fmtTime(iso){ return new Date(iso).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDate(iso){ return new Date(iso).toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'}); }
+function fmtDateTime(iso){ return fmtDate(iso)+' '+fmtTime(iso); }
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+
+// ---------- TOAST ----------
+function toast(msg, type){
+  type = type||'success';
+  var w = document.getElementById('toast-wrap');
+  var t = document.createElement('div');
+  t.className = 'toast '+type;
+  var icons = {success:'✓', error:'✕', info:'ℹ'};
+  t.innerHTML = '<span>'+(icons[type]||'•')+'</span><span>'+msg+'</span>';
+  w.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='.3s'; }, 2400);
+  setTimeout(function(){ t.remove(); }, 2750);
+}
+
+// ---------- CLOCK ----------
+function updateClock(){
+  var el = document.getElementById('topbar-clock');
+  if (el) el.textContent = new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000);
+
+// ---------- LOGIN ----------
+var loginTabMode = 'personal';
+function setLoginTab(tab, el){
+  loginTabMode = tab;
+  document.querySelectorAll('.login-tab').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  var titles = { personal:'Acceso — Personal del colegio', padre:'Acceso — Padres de familia', scanner:'Acceso — Scanner de ingreso' };
+  var subs   = { personal:'Ingresa con tu DNI o código asignado', padre:'Ingresa con tu DNI registrado', scanner:'Acceso rápido al modo scanner' };
+  document.getElementById('login-card-title').textContent = titles[tab];
+  document.getElementById('login-card-sub').textContent   = subs[tab];
+  document.getElementById('login-hint').innerHTML = tab === 'personal' ? 'Admin inicial: DNI <strong>00000000</strong> / pass <strong>admin123</strong>' : '&nbsp;';
+}
+
+function doLogin(){
+  var dni  = document.getElementById('login-dni').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var err  = document.getElementById('login-err');
+  err.style.display = 'none';
+
+  if (!dni || !pass){ err.textContent='Completa todos los campos.'; err.style.display='block'; return; }
+
+  var users = dbGet('users')||[];
+  var user = null;
+  for (var i=0;i<users.length;i++){
+    if (users[i].dni === dni && users[i].password === pass && users[i].active){ user=users[i]; break; }
+  }
+
+  // Role filter by tab
+  if (user){
+    if (loginTabMode==='padre'   && user.role !== 'padre')   user = null;
+    if (loginTabMode==='scanner' && user.role !== 'scanner' && user.role !== 'admin_0' && user.role !== 'admin') user = null;
+    if (loginTabMode==='personal'&& user.role === 'padre')   user = null;
+  }
+
+  if (!user){ err.textContent='DNI, contraseña o tipo de usuario incorrecto.'; err.style.display='block'; return; }
+
+  S.user = user;
+  localStorage.setItem('is2_session', JSON.stringify(user));
+  launchApp();
+}
+
+function doLogout(){
+  localStorage.removeItem('is2_session');
+  S.user = null;
+  if (S.scanner){ try{S.scanner.stop();}catch(e){} S.scanner=null; }
+  S.scannerActive = false;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-dni').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+function checkSession(){
+  var saved = localStorage.getItem('is2_session');
+  if (saved){ try{ S.user=JSON.parse(saved); launchApp(); }catch(e){ localStorage.removeItem('is2_session'); } }
+}
+
+// ---------- LAUNCH ----------
+function launchApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  var u = S.user;
+  var school = dbGet('school')||{};
+
+  // Topbar
+  document.getElementById('tb-avatar').textContent   = initials(u.name);
+  document.getElementById('tb-uname').textContent    = u.name.split(' ')[0];
+  document.getElementById('tb-role').textContent     = rl(u.role);
+  document.getElementById('tb-school-name').textContent = school.name||'InSchool';
+  document.getElementById('tb-school-sub').textContent  = school.city ? '· '+school.city : '';
+  document.getElementById('tb-logo').textContent     = school.initials||'IS';
+  document.getElementById('tb-logo').style.background = school.color||'var(--blue-500)';
+
+  // Login banner
+  if (school.name){
+    var b = document.getElementById('login-school-banner');
+    document.getElementById('login-school-name-banner').textContent = school.name;
+    document.getElementById('login-school-sub-banner').textContent  = school.city||'';
+    b.style.display = 'block';
+    document.getElementById('login-brand-name').textContent = school.name;
+    document.getElementById('login-logo-box').textContent   = school.initials||'IS';
+    document.getElementById('login-logo-box').style.background = school.color||'var(--blue-500)';
+  }
+
+  // Sidebar
+  buildSidebar();
+
+  // Date
+  document.getElementById('att-date').value = todayStr();
+
+  // Default view
+  var def = {scanner:'scanner', padre:'parent'}[u.role] || 'dashboard';
+  showView(def);
+
+  updateClock();
+
+  // Show buttons based on role
+  if (['admin_0','admin','profesor','administrativo'].includes(u.role)){
+    document.getElementById('btn-new-notif').style.display = 'flex';
+  }
+
+  // Tour for new users
+  if (!localStorage.getItem('is2_tour_done_'+u.id)){
+    setTimeout(function(){ startTour(); }, 500);
+  }
+}
+
+// ---------- SIDEBAR ----------
+var NAV_ITEMS = [
+  { id:'dashboard',  icon:'⬜', label:'Inicio',        roles:['admin_0','admin','profesor','administrativo','auxiliar','apoyo'] },
+  { id:'scanner',    icon:'⬡', label:'Scanner QR',    roles:['admin_0','admin','scanner'] },
+  { id:'attendance', icon:'◷', label:'Asistencia',    roles:['admin_0','admin','profesor','administrativo','scanner'] },
+  { id:'parent',     icon:'👨‍👩‍👧', label:'Mi hijo',      roles:['padre'] },
+  { id:'users',      icon:'⊞', label:'Usuarios',      roles:['admin_0','admin'] },
+  { id:'notifications',icon:'◎',label:'Comunicados',  roles:['admin_0','admin','profesor','administrativo','auxiliar','apoyo','padre','scanner'] },
+  { id:'qr',         icon:'▣', label:'Mi QR',         roles:['profesor','administrativo','auxiliar','apoyo','scanner','padre'] },
+  { id:'settings',   icon:'⚙', label:'Configuración', roles:['admin_0','admin'] },
+  { id:'profile',    icon:'◉', label:'Mi perfil',     roles:['admin_0','admin','profesor','administrativo','auxiliar','apoyo','scanner','padre'] },
+];
+
+function buildSidebar(){
+  var role = S.user.role;
+  var school = dbGet('school')||{};
+  var nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+
+  // Section grouping
+  var sections = [
+    { label:'Principal', ids:['dashboard','parent','scanner'] },
+    { label:'Gestión',   ids:['attendance','users','notifications'] },
+    { label:'Personal',  ids:['qr','settings','profile'] },
+  ];
+
+  sections.forEach(function(sec){
+    var items = NAV_ITEMS.filter(function(i){ return sec.ids.includes(i.id) && i.roles.includes(role); });
+    if (!items.length) return;
+    var lbl = document.createElement('div');
+    lbl.className = 'sidebar-section-label';
+    lbl.textContent = sec.label;
+    nav.appendChild(lbl);
+    items.forEach(function(item){
+      var el = document.createElement('div');
+      el.className = 'nav-item';
+      el.id = 'nav-'+item.id;
+      el.innerHTML = '<span class="nav-item-icon">'+item.icon+'</span><span>'+item.label+'</span>';
+      el.onclick = function(){ showView(item.id); closeSidebar(); };
+      nav.appendChild(el);
+    });
+  });
+
+  // School info in sidebar footer
+  var info = document.getElementById('sidebar-school-info');
+  if (school.name) info.innerHTML = '<strong>'+school.name+'</strong><br>'+(school.city||'')+(school.phone?'<br>'+school.phone:'');
+}
+
+// ---------- MOBILE SIDEBAR ----------
+function toggleSidebar(){
+  var sb = document.getElementById('sidebar');
+  var ov = document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+// ---------- VIEW SWITCHING ----------
+function showView(id){
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var v = document.getElementById('view-'+id);
+  if (v) v.classList.add('active');
+  var n = document.getElementById('nav-'+id);
+  if (n) n.classList.add('active');
+  // Load data
+  var loaders = {
+    dashboard: refreshDashboard,
+    attendance: loadAttendance,
+    users: loadUsers,
+    notifications: loadNotifications,
+    qr: loadMyQR,
+    parent: loadParentDash,
+    settings: loadSettings,
+    profile: loadProfile
+  };
+  if (loaders[id]) loaders[id]();
+}
+
+// ---------- DASHBOARD ----------
+function refreshDashboard(){
+  var today = todayStr();
+  var att   = (dbGet('attendance')||[]).filter(function(a){ return a.timestamp.startsWith(today); });
+  var users = dbGet('users')||[];
+  var students = users.filter(function(u){ return u.role==='padre' && u.student; });
+
+  var entries = att.filter(function(a){ return a.type==='entry'; });
+  var exits   = att.filter(function(a){ return a.type==='exit'; });
+  var uniq    = [];
+  entries.forEach(function(a){ if(!uniq.includes(a.user_id)) uniq.push(a.user_id); });
+
+  // Greeting
+  var h = new Date().getHours();
+  var g = h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
+  document.getElementById('dash-greeting').textContent = g+', '+S.user.name.split(' ')[0];
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  var badge = document.getElementById('device-badge');
+  if (badge) badge.textContent = DEVICE==='mobile'?'📱 Móvil':DEVICE==='tablet'?'📟 Tablet':'💻 Desktop';
+
+  // Stats
+  var statsHtml = [
+    { label:'Escaneos hoy', value:att.length, sub:'entradas + salidas', cls:'blue' },
+    { label:'Entradas hoy', value:entries.length, sub:'registros de ingreso', cls:'green' },
+    { label:'Salidas hoy',  value:exits.length,   sub:'registros de egreso', cls:'' },
+    { label:'Usuarios activos', value:users.filter(function(u){return u.active;}).length, sub:'en el sistema', cls:'amber' },
+  ].map(function(s){
+    return '<div class="stat-card '+s.cls+'"><div class="stat-label">'+s.label+'</div><div class="stat-value">'+s.value+'</div><div class="stat-sub">'+s.sub+'</div></div>';
+  }).join('');
+  document.getElementById('dash-stats').innerHTML = statsHtml;
+
+  // Activity
+  var recent = att.slice().sort(function(a,b){ return b.timestamp.localeCompare(a.timestamp); }).slice(0,8);
+  document.getElementById('dash-activity').innerHTML = recent.length ? '<div class="timeline">'+recent.map(function(a){
+    return '<div class="tl-item '+a.type+'"><div><div class="tl-title">'+a.user_name+'</div><div class="tl-sub">'+fmtTime(a.timestamp)+' · '+(a.type==='entry'?'Entrada':'Salida')+'</div></div></div>';
+  }).join('')+'</div>' : '<div class="empty-state"><div class="empty-state-icon">📋</div>Sin actividad hoy</div>';
+
+  // Notifs
+  var notifs = (dbGet('notifications')||[]).slice(0,3);
+  document.getElementById('dash-notifs').innerHTML = notifs.length ? notifs.map(function(n){
+    return '<div class="tl-item" style="cursor:pointer;" onclick="showView(\'notifications\')"><div><div class="tl-title">'+n.title+'</div><div class="tl-sub">'+fmtDate(n.created_at)+'</div></div></div>';
+  }).join('') : '<div class="empty-state"><div class="empty-state-icon">📭</div>Sin avisos</div>';
+}
+
+// ---------- SCANNER ----------
+function toggleScanMode(){
+  S.scanMode = S.scanMode==='entry'?'exit':'entry';
+  document.getElementById('scan-mode-badge').textContent = 'MODO: '+(S.scanMode==='entry'?'ENTRADA':'SALIDA');
+  toast('Modo: '+(S.scanMode==='entry'?'ENTRADA':'SALIDA'), 'info');
+}
+
+function toggleScanner(){
+  if (!S.scannerActive) startScanner(); else stopScanner();
+}
+
+function startScanner(){
+  var readerEl = document.getElementById('qr-reader');
+  readerEl.style.display = 'block';
+  document.getElementById('scan-idle').style.display = 'none';
+  document.getElementById('scan-corners').style.display = 'block';
+  S.scanner = new Html5Qrcode('qr-reader');
+  S.scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:200,height:200}},
+    onScan, function(){})
+  .then(function(){
+    S.scannerActive = true;
+    document.getElementById('scan-btn').textContent = '■ Detener';
+    document.getElementById('scan-btn').className = 'btn btn-danger';
+    document.getElementById('cam-status-badge').textContent = 'Activa';
+    document.getElementById('cam-status-badge').className = 'badge badge-green';
+  }).catch(function(e){
+    toast('No se pudo acceder a la cámara: '+e,'error');
+    readerEl.style.display = 'none';
+    document.getElementById('scan-idle').style.display = 'flex';
+    document.getElementById('scan-corners').style.display = 'none';
+  });
+}
+
+function stopScanner(){
+  if (S.scanner){ try{S.scanner.stop();}catch(e){} S.scanner=null; }
+  S.scannerActive = false;
+  document.getElementById('qr-reader').style.display = 'none';
+  document.getElementById('scan-idle').style.display = 'flex';
+  document.getElementById('scan-corners').style.display = 'none';
+  document.getElementById('scan-btn').textContent = '▶ Activar cámara';
+  document.getElementById('scan-btn').className = 'btn btn-primary';
+  document.getElementById('cam-status-badge').textContent = 'Inactiva';
+  document.getElementById('cam-status-badge').className = 'badge badge-gray';
+}
+
+function onScan(code){
+  var now = Date.now();
+  if (now - S.lastScan < 10000) return;
+  S.lastScan = now;
+  processQR(code);
+}
+
+function processQR(code){
+  var users = dbGet('users')||[];
+  var user = null;
+  for (var i=0;i<users.length;i++){
+    if (users[i].code === code && users[i].active){ user=users[i]; break; }
+  }
+  if (!user){ showScanResult(null,'Código no encontrado: '+code); return; }
+
+  // Anti-duplicate: same user same type within 10 min
+  var att = dbGet('attendance')||[];
+  var tenMinAgo = new Date(Date.now()-600000).toISOString();
+  var dup = att.find(function(a){ return a.user_id===user.id && a.type===S.scanMode && a.timestamp>tenMinAgo; });
+  if (dup){ showScanResult(user, 'Ya registrado recientemente'); return; }
+
+  var record = { id:genId(), user_id:user.id, user_name:user.name, user_role:user.role, user_code:user.code, type:S.scanMode, timestamp:new Date().toISOString() };
+  att.unshift(record);
+  dbSet('attendance', att);
+  showScanResult(user, null);
+  addToScanLog(user, S.scanMode);
+  if (S.scanMode==='entry') S.entriesCount++; else S.exitsCount++;
+  document.getElementById('scan-entries-count').textContent = S.entriesCount;
+  document.getElementById('scan-exits-count').textContent   = S.exitsCount;
+}
+
+function showScanResult(user, error){
+  var box = document.getElementById('scan-result');
+  if (error && !user){
+    box.className = 'scanner-result-card error';
+    box.innerHTML = '<div class="result-icon">✕</div><div class="result-name" style="color:var(--red-500);">Error</div><div class="result-meta">'+error+'</div>';
+    return;
+  }
+  if (error){
+    box.className = 'scanner-result-card';
+    box.innerHTML = '<div class="result-icon">⚠️</div><div class="result-name">'+user.name+'</div><div class="result-meta">'+error+'</div><div class="result-time">'+new Date().toLocaleTimeString('es-PE')+'</div>';
+    return;
+  }
+  box.className = 'scanner-result-card success';
+  box.innerHTML = '<div class="result-icon">'+(S.scanMode==='entry'?'✅':'👋')+'</div><div class="result-name">'+user.name+'</div><div class="result-meta">'+rl(user.role)+' · #'+user.code+'</div><div class="result-type '+(S.scanMode==='entry'?'entry':'exit')+'">'+(S.scanMode==='entry'?'↑ ENTRADA':'↓ SALIDA')+'</div><div class="result-time">'+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</div>';
+}
+
+function addToScanLog(user, type){
+  var list = document.getElementById('scan-log-list');
+  var emptyEl = list.querySelector('.empty-state');
+  if (emptyEl) list.innerHTML = '';
+  var item = document.createElement('div');
+  item.className = 'scan-log-item';
+  item.innerHTML = '<div class="log-dot '+type+'"></div><div style="flex:1;"><div class="text-sm font-medium">'+user.name+'</div><div class="text-xs text-muted mono">'+new Date().toLocaleTimeString('es-PE')+'</div></div><span class="badge '+(type==='entry'?'badge-green':'badge-blue')+'">'+(type==='entry'?'IN':'OUT')+'</span>';
+  list.prepend(item);
+}
+
+function manualEntry(){
+  showModal('Ingreso manual', '<div class="field"><div class="field-label">Código del usuario (7 caracteres)</div><input type="text" class="field-input" id="manual-code" placeholder="IS-XXXXX" style="font-family:var(--mono);"/></div>',
+  [{ label:'Registrar', cls:'btn-primary', fn: function(){
+    var c = document.getElementById('manual-code').value.trim().toUpperCase();
+    if (!c){ toast('Ingresa un código','error'); return; }
+    processQR(c); closeModal();
+  }}]);
+}
+
+// ---------- ATTENDANCE ----------
+function loadAttendance(){
+  var dateVal = document.getElementById('att-date').value;
+  var search  = (document.getElementById('att-search').value||'').toLowerCase();
+  var att = dbGet('attendance')||[];
+  if (dateVal) att = att.filter(function(a){ return a.timestamp.startsWith(dateVal); });
+  if (search)  att = att.filter(function(a){ return (a.user_name||'').toLowerCase().includes(search); });
+  att.sort(function(a,b){ return b.timestamp.localeCompare(a.timestamp); });
+  var tbody = document.getElementById('att-tbody');
+  tbody.innerHTML = att.length ? att.map(function(a){
+    var tb = a.type==='entry'?'<span class="badge badge-green">↑ Entrada</span>':'<span class="badge badge-blue">↓ Salida</span>';
+    return '<tr><td>'+a.user_name+'</td><td><span class="badge badge-gray">'+rl(a.user_role)+'</span></td><td>'+tb+'</td><td class="mono">'+fmtTime(a.timestamp)+'</td><td class="mono" style="font-size:12px;">'+fmtDate(a.timestamp)+'</td></tr>';
+  }).join('') : '<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📋</div>Sin registros para este filtro</div></td></tr>';
+}
+
+// ---------- USERS ----------
+function loadUsers(){
+  var search = (document.getElementById('usr-search').value||'').toLowerCase();
+  var rfilt  = document.getElementById('usr-role-filter').value;
+  var users  = dbGet('users')||[];
+  if (rfilt)  users = users.filter(function(u){ return u.role===rfilt; });
+  if (search) users = users.filter(function(u){ return u.name.toLowerCase().includes(search)||u.dni.includes(search); });
+  var rbc = {admin_0:'badge-blue',admin:'badge-blue',profesor:'badge-green',administrativo:'badge-amber',auxiliar:'badge-gray',apoyo:'badge-gray',scanner:'badge-amber',padre:'badge-gray'};
+  var tbody = document.getElementById('usr-tbody');
+  tbody.innerHTML = users.length ? users.map(function(u){
+    return '<tr><td><div class="flex gap-8 items-center"><div style="width:30px;height:30px;border-radius:50%;background:var(--blue-100);color:var(--blue-600);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+initials(u.name)+'</div>'+u.name+'</div></td><td class="mono">'+u.dni+'</td><td class="mono text-xs">'+u.code+'</td><td><span class="badge '+(rbc[u.role]||'badge-gray')+'">'+rl(u.role)+'</span></td><td><span class="badge '+(u.active?'badge-green':'badge-red')+'">'+(u.active?'Activo':'Inactivo')+'</span></td><td><div class="flex gap-8"><button class="btn btn-secondary btn-sm" onclick="viewUserQR(\''+u.id+'\')">QR</button><button class="btn btn-secondary btn-sm" onclick="editUser(\''+u.id+'\')">Editar</button>'+(u.id!=='u_admin0'?'<button class="btn btn-danger btn-sm" onclick="toggleUserActive(\''+u.id+'\','+(!u.active)+')">'+(u.active?'Desactivar':'Activar')+'</button>':'')+'</div></td></tr>';
+  }).join('') : '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">👤</div>Sin usuarios</div></td></tr>';
+}
+
+function openCreateUser(){
+  showModal('Crear usuario', buildUserForm(null),
+  [{ label:'Crear usuario', cls:'btn-primary', fn: saveNewUser }]);
+}
+
+function buildUserForm(user){
+  var r = user ? user.role : 'profesor';
+  var isPadre = r === 'padre';
+  return '<div class="form-row"><div class="field"><div class="field-label">Nombre completo *</div><input type="text" class="field-input" id="uf-name" value="'+(user?user.name:'')+'" placeholder="Juan García Pérez"/></div><div class="field"><div class="field-label">DNI (login) *</div><input type="tel" class="field-input" id="uf-dni" value="'+(user?user.dni:'')+'" placeholder="47251890" maxlength="15"/></div></div><div class="form-row"><div class="field"><div class="field-label">Contraseña *</div><input type="text" class="field-input" id="uf-pass" value="'+(user?user.password:'')+'" placeholder="Mín. 6 caracteres"/></div><div class="field"><div class="field-label">Rol *</div><select class="field-input field-select" id="uf-role" onchange="togglePadreFields()"><option value="profesor" '+(r==='profesor'?'selected':'')+'>Profesor</option><option value="administrativo" '+(r==='administrativo'?'selected':'')+'>Administrativo</option><option value="auxiliar" '+(r==='auxiliar'?'selected':'')+'>Auxiliar</option><option value="apoyo" '+(r==='apoyo'?'selected':'')+'>Personal de apoyo</option><option value="scanner" '+(r==='scanner'?'selected':'')+'>Scanner de ingreso</option><option value="admin" '+(r==='admin'?'selected':'')+'>Administrador</option><option value="padre" '+(r==='padre'?'selected':'')+'>Padre/Madre</option></select></div></div><div id="padre-fields" style="display:'+(isPadre?'block':'none')+'"><div class="divider"></div><div style="font-size:12px;font-weight:600;color:var(--blue-500);margin-bottom:10px;">👨‍👩‍👧 Datos del hijo/alumno</div><div class="form-row"><div class="field"><div class="field-label">Nombre del alumno *</div><input type="text" class="field-input" id="uf-student-name" value="'+(user&&user.student?user.student.name:'')+'" placeholder="María García"/></div><div class="field"><div class="field-label">DNI del alumno</div><input type="tel" class="field-input" id="uf-student-dni" value="'+(user&&user.student?user.student.dni:'')+'" placeholder="DNI del alumno"/></div></div><div class="form-row"><div class="field"><div class="field-label">Grado / Sección</div><input type="text" class="field-input" id="uf-student-grade" value="'+(user&&user.student?user.student.grade:'')+'" placeholder="3ro A"/></div><div class="field"><div class="field-label">Celular de emergencia</div><input type="tel" class="field-input" id="uf-emergency" value="'+(user&&user.student?user.student.emergency:'')+'" placeholder="999 888 777"/></div></div></div>';
+}
+
+function togglePadreFields(){
+  var sel = document.getElementById('uf-role');
+  if (!sel) return;
+  var pf = document.getElementById('padre-fields');
+  if (pf) pf.style.display = sel.value==='padre' ? 'block' : 'none';
+}
+
+function saveNewUser(){
+  var name = document.getElementById('uf-name').value.trim();
+  var dni  = document.getElementById('uf-dni').value.trim();
+  var pass = document.getElementById('uf-pass').value;
+  var role = document.getElementById('uf-role').value;
+  if (!name||!dni||!pass){ toast('Completa los campos obligatorios','error'); return; }
+  var users = dbGet('users')||[];
+  if (users.find(function(u){ return u.dni===dni; })){ toast('Ese DNI ya está registrado','error'); return; }
+
+  var newUser = { id:genId(), name:name, dni:dni, password:pass, role:role, code:genCode(), active:true, created_at:new Date().toISOString() };
+
+  if (role==='padre'){
+    var sname = (document.getElementById('uf-student-name')||{}).value||'';
+    var sdni  = (document.getElementById('uf-student-dni')||{}).value||'';
+    var sgrade= (document.getElementById('uf-student-grade')||{}).value||'';
+    var semerg= (document.getElementById('uf-emergency')||{}).value||'';
+    if (!sname){ toast('Ingresa el nombre del alumno','error'); return; }
+    var studentCode = genCode();
+    newUser.student = { name:sname, dni:sdni, grade:sgrade, emergency:semerg, code:studentCode };
+  }
+
+  users.push(newUser);
+  dbSet('users', users);
+  closeModal();
+  loadUsers();
+  toast('Usuario "'+name+'" creado — código: '+newUser.code,'success');
+}
+
+function editUser(id){
+  var users = dbGet('users')||[];
+  var user = users.find(function(u){ return u.id===id; });
+  if (!user) return;
+  showModal('Editar usuario — '+user.name, buildUserForm(user),
+  [{ label:'Guardar cambios', cls:'btn-primary', fn: function(){
+    var name = document.getElementById('uf-name').value.trim();
+    var dni  = document.getElementById('uf-dni').value.trim();
+    var pass = document.getElementById('uf-pass').value;
+    var role = document.getElementById('uf-role').value;
+    if (!name||!dni||!pass){ toast('Completa los campos','error'); return; }
+    var dup = users.find(function(u){ return u.dni===dni && u.id!==id; });
+    if (dup){ toast('Ese DNI ya está registrado','error'); return; }
+    users = users.map(function(u){
+      if (u.id!==id) return u;
+      var updated = Object.assign({},u,{name:name,dni:dni,password:pass,role:role});
+      if (role==='padre'){
+        var sname=(document.getElementById('uf-student-name')||{}).value||'';
+        var sdni =(document.getElementById('uf-student-dni')||{}).value||'';
+        var sg   =(document.getElementById('uf-student-grade')||{}).value||'';
+        var se   =(document.getElementById('uf-emergency')||{}).value||'';
+        updated.student = {name:sname,dni:sdni,grade:sg,emergency:se,code:(u.student&&u.student.code)||genCode()};
+      }
+      return updated;
+    });
+    dbSet('users',users);
+    closeModal(); loadUsers(); toast('Usuario actualizado','success');
+  }}]);
+}
+
+function toggleUserActive(id, newState){
+  var users = dbGet('users')||[];
+  users = users.map(function(u){ return u.id===id?Object.assign({},u,{active:newState}):u; });
+  dbSet('users',users); loadUsers(); toast('Estado actualizado','success');
+}
+
+function viewUserQR(id){
+  var users = dbGet('users')||[];
+  var u = users.find(function(u){ return u.id===id; });
+  if (!u) return;
+  var school = dbGet('school')||{};
+  showModal('QR — '+u.name,
+    '<div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 0;">'+
+    '<div id="modal-qr-box" style="background:white;padding:12px;border-radius:8px;border:1px solid var(--gray-200);"></div>'+
+    '<div class="mono" style="font-size:18px;letter-spacing:3px;color:var(--blue-500);font-weight:600;">'+u.code+'</div>'+
+    '<div class="text-sm text-subtle">'+u.name+'</div>'+
+    '<span class="badge badge-blue">'+rl(u.role)+'</span>'+
+    '</div>',
+  null);
+  setTimeout(function(){
+    var el = document.getElementById('modal-qr-box');
+    if (el && typeof QRCode!=='undefined') new QRCode(el,{text:u.code,width:160,height:160,colorDark:'#000',colorLight:'#fff'});
+  },100);
+}
+
+// ---------- NOTIFICATIONS ----------
+function loadNotifications(){
+  var notifs = dbGet('notifications')||[];
+  var icons  = {all:'📢',profesor:'🏫',padre:'👨‍👩‍👧',admin:'⚙️',admin_0:'⚙️'};
+  document.getElementById('notif-list').innerHTML = notifs.length ? notifs.map(function(n){
+    var safe = n.id;
+    return '<div class="tl-item" style="cursor:pointer;" onclick="showNotifDetail(\''+safe+'\')"><div><div class="tl-title">'+(icons[n.target]||'📢')+' '+n.title+'</div><div class="tl-sub">'+fmtDate(n.created_at)+' · '+n.target+'</div></div></div>';
+  }).join('') : '<div class="empty-state"><div class="empty-state-icon">📭</div>Sin comunicados</div>';
+}
+
+function showNotifDetail(id){
+  var notifs = dbGet('notifications')||[];
+  var n = notifs.find(function(x){ return x.id===id; });
+  if (!n) return;
+  var card = document.getElementById('notif-detail');
+  card.style.display = 'block';
+  document.getElementById('notif-detail-body').innerHTML =
+    '<div class="badge badge-blue mb-12">'+n.target.toUpperCase()+'</div>'+
+    '<div style="font-size:18px;font-weight:700;margin-bottom:10px;color:var(--gray-900);">'+n.title+'</div>'+
+    '<div class="text-sm" style="color:var(--gray-500);line-height:1.7;">'+n.message+'</div>'+
+    '<div class="text-xs text-muted mono mt-12">'+fmtDateTime(n.created_at)+'</div>';
+}
+
+function openCreateNotif(){
+  showModal('Nuevo comunicado',
+    '<div class="field"><div class="field-label">Título</div><input type="text" class="field-input" id="nf-title" placeholder="Comunicado importante"/></div>'+
+    '<div class="field"><div class="field-label">Mensaje</div><textarea class="field-input field-textarea" id="nf-msg" rows="4" placeholder="Escribe el mensaje aquí..."></textarea></div>'+
+    '<div class="field"><div class="field-label">Dirigido a</div><select class="field-input field-select" id="nf-target"><option value="all">Todos</option><option value="padre">Padres</option><option value="profesor">Profesores</option><option value="admin">Administrativos</option></select></div>',
+  [{ label:'Publicar', cls:'btn-primary', fn: function(){
+    var t = document.getElementById('nf-title').value.trim();
+    var m = document.getElementById('nf-msg').value.trim();
+    var tg= document.getElementById('nf-target').value;
+    if(!t||!m){ toast('Completa todos los campos','error'); return; }
+    var notifs = dbGet('notifications')||[];
+    notifs.unshift({id:genId(),title:t,message:m,target:tg,created_at:new Date().toISOString()});
+    dbSet('notifications',notifs);
+    closeModal(); loadNotifications(); toast('Comunicado publicado','success');
+  }}]);
+}
+
+// ---------- MY QR ----------
+function loadMyQR(){
+  var u = S.user;
+  document.getElementById('my-qr-num').textContent  = u.code;
+  document.getElementById('my-qr-name').textContent = u.name;
+  document.getElementById('my-qr-role').textContent = rl(u.role);
+  var box = document.getElementById('my-qr-box');
+  box.innerHTML = '';
+  if (typeof QRCode!=='undefined') new QRCode(box,{text:u.code,width:180,height:180,colorDark:'#000',colorLight:'#fff'});
+  // My attendance
+  var att = (dbGet('attendance')||[]).filter(function(a){ return a.user_id===u.id; }).slice(0,12);
+  document.getElementById('my-att-list').innerHTML = att.length ?
+    '<div class="timeline">'+att.map(function(a){
+      return '<div class="tl-item '+a.type+'"><div><div class="tl-title">'+(a.type==='entry'?'↑ Entrada':'↓ Salida')+'</div><div class="tl-sub">'+fmtDateTime(a.timestamp)+'</div></div></div>';
+    }).join('')+'</div>'
+    : '<div class="empty-state"><div class="empty-state-icon">📋</div>Sin registros</div>';
+}
+
+function downloadMyQR(){
+  var canvas = document.querySelector('#my-qr-box canvas');
+  if (!canvas){ toast('QR no disponible','error'); return; }
+  var link = document.createElement('a');
+  link.download = 'qr_'+S.user.code+'.png';
+  link.href = canvas.toDataURL();
+  link.click();
+  toast('QR guardado','success');
+}
+
+// ---------- PARENT DASHBOARD ----------
+function loadParentDash(){
+  var u = S.user;
+  var student = u.student;
+
+  // Student header
+  document.getElementById('parent-student-header').innerHTML = student ?
+    '<div class="student-header-card"><div class="student-avatar-big">'+initials(student.name)+'</div><div><div class="student-header-name">'+student.name+'</div><div class="student-header-sub">'+( student.grade||'Sin grado asignado')+(student.dni?' · DNI: '+student.dni:'')+'</div></div></div>'
+    : '<div class="card mb-16"><div class="empty-state"><div class="empty-state-icon">👤</div>Sin alumno vinculado. Contacta al administrador.</div></div>';
+
+  if (!student) return;
+
+  // Attendance
+  var now   = new Date();
+  var month = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var att   = (dbGet('attendance')||[]).filter(function(a){ return a.user_id===u.id && a.type==='entry' && a.timestamp.startsWith(month); });
+  var lastE = (dbGet('attendance')||[]).filter(function(a){ return a.user_id===u.id && a.type==='entry'; }).sort(function(a,b){ return b.timestamp.localeCompare(a.timestamp); })[0];
+
+  document.getElementById('p-att-count').textContent     = att.length;
+  document.getElementById('p-last-entry').textContent    = lastE ? fmtTime(lastE.timestamp) : '—';
+  document.getElementById('p-last-entry-date').textContent = lastE ? fmtDate(lastE.timestamp) : 'Sin registros aún';
+
+  var allAtt = (dbGet('attendance')||[]).filter(function(a){ return a.user_id===u.id; }).slice(0,20);
+  document.getElementById('parent-att-list').innerHTML = allAtt.length ?
+    '<div class="timeline">'+allAtt.map(function(a){
+      return '<div class="tl-item '+a.type+'"><div><div class="tl-title">'+(a.type==='entry'?'↑ Entrada':'↓ Salida')+'</div><div class="tl-sub">'+fmtDateTime(a.timestamp)+'</div></div></div>';
+    }).join('')+'</div>'
+    : '<div class="empty-state"><div class="empty-state-icon">📋</div>Sin registros de asistencia</div>';
+
+  // Student QR
+  var sqbox = document.getElementById('student-qr-box');
+  sqbox.innerHTML = '';
+  document.getElementById('student-qr-num').textContent  = student.code||u.code;
+  document.getElementById('student-qr-name').textContent = student.name;
+  if (typeof QRCode!=='undefined') new QRCode(sqbox,{text:student.code||u.code,width:160,height:160,colorDark:'#000',colorLight:'#fff'});
+}
+
+function downloadStudentQR(){
+  var canvas = document.querySelector('#student-qr-box canvas');
+  if (!canvas){ toast('QR no disponible','error'); return; }
+  var u = S.user;
+  var link = document.createElement('a');
+  link.download = 'qr_alumno_'+(u.student?u.student.code||u.code:u.code)+'.png';
+  link.href = canvas.toDataURL();
+  link.click();
+  toast('QR guardado','success');
+}
+
+// ---------- SETTINGS ----------
+function loadSettings(){
+  var s = dbGet('school')||{};
+  var fields = ['name','level','address','city','phone','email','web','director','subdirector','message','initials','color'];
+  fields.forEach(function(f){
+    var el = document.getElementById('cfg-'+f);
+    if (el && s[f]!==undefined) el.value = s[f];
+  });
+}
+
+function saveSettings(){
+  var s = dbGet('school')||{};
+  var fields = ['name','level','address','city','phone','email','web','director','subdirector','message','initials','color'];
+  fields.forEach(function(f){
+    var el = document.getElementById('cfg-'+f);
+    if (el) s[f] = el.value;
+  });
+  dbSet('school',s);
+  // Update UI
+  document.getElementById('tb-school-name').textContent = s.name||'InSchool';
+  document.getElementById('tb-school-sub').textContent  = s.city ? '· '+s.city : '';
+  document.getElementById('tb-logo').textContent        = s.initials||'IS';
+  document.getElementById('tb-logo').style.background   = s.color||'var(--blue-500)';
+  document.getElementById('login-brand-name').textContent = s.name||'InSchool';
+  document.getElementById('login-logo-box').textContent   = s.initials||'IS';
+  document.getElementById('login-logo-box').style.background = s.color||'var(--blue-500)';
+  if (s.name){
+    document.getElementById('login-school-name-banner').textContent = s.name;
+    document.getElementById('login-school-sub-banner').textContent  = s.city||'';
+    document.getElementById('login-school-banner').style.display = 'block';
+  }
+  toast('Configuración guardada','success');
+}
+
+// ---------- PROFILE ----------
+function loadProfile(){
+  var u = S.user;
+  document.getElementById('profile-avatar-big').textContent = initials(u.name);
+  document.getElementById('profile-name').textContent       = u.name;
+  document.getElementById('profile-dni').textContent        = u.dni;
+  document.getElementById('profile-code').textContent       = u.code;
+  document.getElementById('profile-role-badge').textContent = rl(u.role);
+
+  var extra = document.getElementById('profile-extra');
+  if (u.role==='padre' && u.student){
+    extra.innerHTML = '<div class="card"><div class="card-title">Alumno vinculado</div><div class="flex gap-8 items-center mt-8"><div style="width:48px;height:48px;border-radius:50%;background:var(--blue-100);color:var(--blue-600);font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;">'+initials(u.student.name)+'</div><div><div style="font-weight:600;">'+u.student.name+'</div><div class="text-sm text-muted">'+(u.student.grade||'Sin grado')+' · DNI: '+(u.student.dni||'—')+'</div><div class="text-xs text-muted mono mt-4">Código: '+(u.student.code||'—')+'</div></div></div>'+(u.student.emergency?'<div class="mt-12 text-sm"><span class="text-muted">Contacto de emergencia: </span>'+u.student.emergency+'</div>':'')+'</div>';
+  } else {
+    extra.innerHTML = '';
+  }
+
+  // Admin: show user management shortcut
+  if (['admin_0','admin'].includes(u.role)){
+    extra.innerHTML += '<div class="card mt-12"><div class="card-title">Panel de administrador</div><div class="flex gap-8 mt-8" style="flex-wrap:wrap;"><button class="btn btn-secondary btn-sm" onclick="showView(\'users\')">👥 Gestionar usuarios</button><button class="btn btn-secondary btn-sm" onclick="showView(\'settings\')">⚙ Configuración</button></div></div>';
+  }
+}
+
+function openChangePass(){
+  showModal('Cambiar contraseña',
+    '<div class="field"><div class="field-label">Contraseña actual</div><input type="password" class="field-input" id="cp-old" placeholder="••••••••"/></div>'+
+    '<div class="field"><div class="field-label">Nueva contraseña</div><input type="password" class="field-input" id="cp-new" placeholder="Mín. 6 caracteres"/></div>'+
+    '<div class="field"><div class="field-label">Confirmar nueva contraseña</div><input type="password" class="field-input" id="cp-confirm" placeholder="Repite la contraseña"/></div>',
+  [{ label:'Cambiar', cls:'btn-primary', fn: function(){
+    var old = document.getElementById('cp-old').value;
+    var nw  = document.getElementById('cp-new').value;
+    var cf  = document.getElementById('cp-confirm').value;
+    if (old !== S.user.password){ toast('Contraseña actual incorrecta','error'); return; }
+    if (nw.length < 6){ toast('La contraseña debe tener mínimo 6 caracteres','error'); return; }
+    if (nw !== cf){ toast('Las contraseñas no coinciden','error'); return; }
+    var users = dbGet('users')||[];
+    users = users.map(function(u){ return u.id===S.user.id?Object.assign({},u,{password:nw}):u; });
+    dbSet('users',users);
+    S.user = Object.assign({},S.user,{password:nw});
+    localStorage.setItem('is2_session',JSON.stringify(S.user));
+    closeModal(); toast('Contraseña actualizada','success');
+  }}]);
+}
+
+// ---------- PDF EXPORT ----------
+function buildPDFHeader(title){
+  var school = dbGet('school')||{};
+  return '<div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto;padding:20px;">'
+    +'<div style="border-bottom:2px solid #2563eb;padding-bottom:12px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">'
+    +'<div style="width:48px;height:48px;background:'+(school.color||'#2563eb')+';border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:white;">'+(school.initials||'IS')+'</div>'
+    +'<div><div style="font-size:18px;font-weight:700;">'+(school.name||'InSchool')+'</div>'
+    +'<div style="font-size:12px;color:#666;">'+(school.city||'')+(school.phone?' · '+school.phone:'')+'</div></div></div>'
+    +'<h2 style="font-size:16px;margin-bottom:4px;">'+title+'</h2>'
+    +'<div style="font-size:12px;color:#666;margin-bottom:16px;">Generado: '+new Date().toLocaleString('es-PE')+'</div>';
+}
+
+function exportAttPDF(){
+  var dateVal = document.getElementById('att-date').value||todayStr();
+  var att = (dbGet('attendance')||[]).filter(function(a){ return a.timestamp.startsWith(dateVal); });
+  att.sort(function(a,b){ return b.timestamp.localeCompare(a.timestamp); });
+  var rows = att.map(function(a){
+    return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">'+a.user_name+'</td>'
+      +'<td style="padding:6px 8px;border-bottom:1px solid #eee;">'+rl(a.user_role)+'</td>'
+      +'<td style="padding:6px 8px;border-bottom:1px solid #eee;">'+(a.type==='entry'?'↑ Entrada':'↓ Salida')+'</td>'
+      +'<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;">'+fmtTime(a.timestamp)+'</td></tr>';
+  }).join('');
+  var html = buildPDFHeader('Registro de Asistencia — '+dateVal)
+    +'<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    +'<thead><tr style="background:#f8f9fa;"><th style="padding:8px;text-align:left;">Nombre</th><th style="padding:8px;text-align:left;">Rol</th><th style="padding:8px;text-align:left;">Tipo</th><th style="padding:8px;text-align:left;">Hora</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>'
+    +'<div style="margin-top:24px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#999;text-align:center;">InSchool OS v2.0 · Sistema de Gestión Escolar</div></div>';
+  openPrintWindow(html);
+}
+
+function exportScannerPDF(){ exportAttPDF(); }
+
+function exportParentPDF(){
+  var u = S.user;
+  if (!u.student) return;
+  var att = (dbGet('attendance')||[]).filter(function(a){ return a.user_id===u.id; });
+  att.sort(function(a,b){ return b.timestamp.localeCompare(a.timestamp); });
+  var rows = att.map(function(a){
+    return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">'+(a.type==='entry'?'↑ Entrada':'↓ Salida')+'</td>'
+      +'<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;">'+fmtDate(a.timestamp)+'</td>'
+      +'<td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:monospace;">'+fmtTime(a.timestamp)+'</td></tr>';
+  }).join('');
+  var html = buildPDFHeader('Reporte de Asistencia — '+u.student.name)
+    +'<div style="background:#f0f4ff;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;">'
+    +'<strong>Alumno:</strong> '+u.student.name+'<br>'
+    +(u.student.grade?'<strong>Grado:</strong> '+u.student.grade+'<br>':'')
+    +(u.student.dni?'<strong>DNI:</strong> '+u.student.dni:'')+'</div>'
+    +'<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+    +'<thead><tr style="background:#f8f9fa;"><th style="padding:8px;text-align:left;">Tipo</th><th style="padding:8px;text-align:left;">Fecha</th><th style="padding:8px;text-align:left;">Hora</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>'
+    +'<div style="margin-top:24px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#999;text-align:center;">InSchool OS v2.0 · Sistema de Gestión Escolar</div></div>';
+  openPrintWindow(html);
+}
+
+function openPrintWindow(html){
+  var w = window.open('','_blank','width=800,height=600');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>InSchool — Reporte</title><style>body{margin:0;background:white;}@media print{body{-webkit-print-color-adjust:exact;}}</style></head><body>'+html+'<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+}
+
+// ---------- MODAL ----------
+function showModal(title, body, actions){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML    = body;
+  var footer = document.getElementById('modal-footer');
+  footer.innerHTML = '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>';
+  if (actions){
+    actions.forEach(function(a){
+      var btn = document.createElement('button');
+      btn.className = 'btn '+(a.cls||'btn-primary');
+      btn.textContent = a.label;
+      btn.onclick = a.fn;
+      footer.appendChild(btn);
+    });
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+document.getElementById('modal-overlay').addEventListener('click', function(e){
+  if (e.target === this) closeModal();
+});
+
+// ---------- TOUR ----------
+var tourSteps = [];
+var tourIdx = 0;
+
+function buildTourSteps(){
+  var role = S.user.role;
+  var base = [
+    { icon:'👋', title:'Bienvenido a InSchool', text:'Tu sistema escolar está listo. Te mostramos lo esencial en unos pasos rápidos.' },
+    { icon:'🧭', title:'Navegación', text:'Usa el menú lateral para moverte entre secciones. En móvil, toca el botón ☰ para abrirlo.' },
+  ];
+  if (role==='admin_0'||role==='admin'){
+    base = base.concat([
+      { icon:'⚙', title:'Configura tu colegio', text:'Ve a Configuración para agregar el nombre, logo y datos de tu institución. Esto personaliza toda la app.' },
+      { icon:'👥', title:'Registra a los usuarios', text:'En Usuarios, crea el personal y los padres. Cada usuario recibe un código único y QR automáticamente.' },
+      { icon:'🔑', title:'Credenciales de acceso', text:'El login inicial de cada usuario es su DNI + contraseña que tú asignes. Pueden cambiarla después.' },
+    ]);
+  } else if (role==='padre'){
+    base = base.concat([
+      { icon:'👨‍👩‍👧', title:'Información de tu hijo', text:'En "Mi hijo" verás el historial de entradas y salidas de tu alumno.' },
+      { icon:'▣', title:'Tu código QR', text:'El QR en "Mi QR" se usa para registrar tu propio ingreso al colegio.' },
+      { icon:'📄', title:'Exportar reportes', text:'Puedes descargar el historial de asistencia de tu hijo en PDF.' },
+    ]);
+  } else if (role==='scanner'){
+    base = base.concat([
+      { icon:'📷', title:'Modo scanner', text:'Activa la cámara y escanea los QR de los usuarios para registrar entradas y salidas.' },
+      { icon:'⇄', title:'Cambiar modo', text:'Usa el botón "Cambiar modo" para alternar entre registrar ENTRADAS y SALIDAS.' },
+    ]);
+  } else {
+    base = base.concat([
+      { icon:'▣', title:'Tu código QR', text:'Encuentra tu QR en la sección "Mi QR". Úsalo para registrar asistencia.' },
+      { icon:'📋', title:'Más funciones pronto', text:'El sistema está en crecimiento. Próximamente tendrás acceso a más herramientas.' },
+    ]);
+  }
+  return base;
+}
+
+function startTour(){
+  tourSteps = buildTourSteps();
+  tourIdx = 0;
+  renderTour();
+  document.getElementById('tour-overlay').classList.add('open');
+}
+
+function renderTour(){
+  var step = tourSteps[tourIdx];
+  document.getElementById('tour-step-label').textContent = 'Paso '+(tourIdx+1)+' de '+tourSteps.length;
+  document.getElementById('tour-icon').textContent  = step.icon;
+  document.getElementById('tour-title').textContent = step.title;
+  document.getElementById('tour-text').textContent  = step.text;
+  var dots = document.getElementById('tour-dots');
+  dots.innerHTML = tourSteps.map(function(_,i){
+    return '<div class="tour-dot'+(i===tourIdx?' active':'')+'" onclick="jumpTour('+i+')"></div>';
+  }).join('');
+  // Last step button
+  var actions = document.querySelector('.tour-actions');
+  actions.innerHTML = tourIdx > 0 ? '<button class="btn btn-secondary" onclick="prevTour()">← Anterior</button>' : '<button class="btn btn-secondary" onclick="skipTour()">Omitir</button>';
+  if (tourIdx < tourSteps.length-1){
+    actions.innerHTML += '<button class="btn btn-primary" onclick="nextTour()">Siguiente →</button>';
+  } else {
+    actions.innerHTML += '<button class="btn btn-primary" onclick="skipTour()">¡Entendido!</button>';
+  }
+}
+
+function nextTour(){ if(tourIdx<tourSteps.length-1){ tourIdx++; renderTour(); } }
+function prevTour(){ if(tourIdx>0){ tourIdx--; renderTour(); } }
+function jumpTour(i){ tourIdx=i; renderTour(); }
+function skipTour(){
+  document.getElementById('tour-overlay').classList.remove('open');
+  localStorage.setItem('is2_tour_done_'+S.user.id, '1');
+}
+
+// ---------- EXPOSE TO WINDOW (required for inline onclick) ----------
+window.doLogin           = doLogin;
+window.doLogout          = doLogout;
+window.setLoginTab       = setLoginTab;
+window.toggleSidebar     = toggleSidebar;
+window.closeSidebar      = closeSidebar;
+window.showView          = showView;
+window.refreshDashboard  = refreshDashboard;
+window.toggleScanMode    = toggleScanMode;
+window.toggleScanner     = toggleScanner;
+window.manualEntry       = manualEntry;
+window.exportScannerPDF  = exportScannerPDF;
+window.exportAttPDF      = exportAttPDF;
+window.loadAttendance    = loadAttendance;
+window.loadUsers         = loadUsers;
+window.openCreateUser    = openCreateUser;
+window.toggleUserActive  = toggleUserActive;
+window.viewUserQR        = viewUserQR;
+window.editUser          = editUser;
+window.loadNotifications = loadNotifications;
+window.showNotifDetail   = showNotifDetail;
+window.openCreateNotif   = openCreateNotif;
+window.loadMyQR          = loadMyQR;
+window.downloadMyQR      = downloadMyQR;
+window.exportParentPDF   = exportParentPDF;
+window.downloadStudentQR = downloadStudentQR;
+window.saveSettings      = saveSettings;
+window.loadSettings      = loadSettings;
+window.openChangePass    = openChangePass;
+window.loadProfile       = loadProfile;
+window.closeModal        = closeModal;
+window.nextTour          = nextTour;
+window.prevTour          = prevTour;
+window.jumpTour          = jumpTour;
+window.skipTour          = skipTour;
+window.togglePadreFields = togglePadreFields;
+
+// ---------- INIT ----------
+initDB();
+checkSession();
+updateClock();
+
+document.getElementById('login-dni').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('login-pass').focus(); });
+document.getElementById('login-pass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
